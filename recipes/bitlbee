@@ -1,4 +1,0 @@
-(bitlbee
- :repo "pjones/elisp"
- :fetcher github
- :files ("lisp/bitlbee.el"))

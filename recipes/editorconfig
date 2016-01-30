@@ -1,3 +1,0 @@
-(editorconfig :repo "editorconfig/editorconfig-emacs"
-              :fetcher github
-              :files ("editorconfig.el"))

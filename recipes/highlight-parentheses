@@ -1,3 +1,0 @@
-(highlight-parentheses
- :repo "nschum/highlight-parentheses.el"
- :fetcher github)

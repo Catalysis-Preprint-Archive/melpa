@@ -1,4 +1,0 @@
-(julia-mode
- :repo "JuliaLang/julia"
- :fetcher github
- :files ("contrib/julia-mode.el"))

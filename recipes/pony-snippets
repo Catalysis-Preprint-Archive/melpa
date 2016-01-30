@@ -1,4 +1,0 @@
-(pony-snippets
- :repo "seantallen/pony-snippets"
- :fetcher github
- :files (:defaults "snippets"))
