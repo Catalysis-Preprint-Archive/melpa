@@ -1,0 +1,113 @@
+#+TITLE: Readme for CaPPA
+
+
+#+BEGIN_SRC sh
+make
+make sync
+make deploy
+#+END_SRC
+
+
+* Ongoing work
+#+BEGIN_SRC emacs-lisp
+(require 'json)
+(let ((package-build-stable nil)
+      (package-build-archive-dir (expand-file-name "./packages/" package-build--this-dir)))
+  (package-build-archive-alist-as-json "html/archive.json"))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp :results code
+(package-build--archive-alist-for-json)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC emacs-lisp
+(:kitchingroup-57
+ (:ver
+  (20160130 1223)
+  :deps
+  (:cappa
+   (0))
+  :desc "preprint http://dx.doi.org/10.1021/acscatal.5b00538." :type tar :props
+  ((:authors
+    ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+   (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu")))
+ :kitchingroup-43
+ (:ver
+  (20160130 1150)
+  :deps
+  (:cappa
+   (0))
+  :desc "preprint doi:10.1007/s11244-013-0166-3" :type tar :props
+  ((:authors
+    ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+   (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu")))
+ :cappa
+ (:ver
+  (20160130 1058)
+  :deps nil :desc "Catalysis Preprint Archive" :type single :props
+  ((:authors
+    ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+   (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(json-encode (package-build--archive-alist-for-json))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(let ((package-build-stable nil)
+      (package-build-archive-dir
+       (expand-file-name "./packages/" package-build--this-dir))) (package-build-archive-alist-as-json "html/archive.json"))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(apply 'append
+         (mapcar (lambda (entry)
+                   (list (package-build--sym-to-keyword (car entry))
+                         (package-build--pkg-info-for-json (cdr entry))))
+                 (package-build-archive-alist)))
+#+END_SRC
+
+#+RESULTS:
+| :kitchingroup-57 | (:ver (20160130 1223) :deps (:cappa (0)) :desc preprint http://dx.doi.org/10.1021/acscatal.5b00538. :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer John Kitchin . jkitchin@andrew.cmu.edu))) | :kitchingroup-43 | (:ver (20160130 1150) :deps (:cappa (0)) :desc preprint doi:10.1007/s11244-013-0166-3 :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer John Kitchin . jkitchin@andrew.cmu.edu))) | :cappa | (:ver (20160130 1058) :deps nil :desc Catalysis Preprint Archive :type single :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer John Kitchin . jkitchin@andrew.cmu.edu))) |
+
+#+BEGIN_SRC emacs-lisp :results code
+(package-build-archive-alist)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC emacs-lisp
+((kitchingroup-57 .
+		  [(20160130 1223)
+		   ((cappa
+		     (0)))
+		   "preprint http://dx.doi.org/10.1021/acscatal.5b00538." tar
+		   ((:authors
+		     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+		    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))])
+ (kitchingroup-43 .
+		  [(20160130 1150)
+		   ((cappa
+		     (0)))
+		   "preprint doi:10.1007/s11244-013-0166-3" tar
+		   ((:authors
+		     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+		    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))])
+ (cappa .
+	[(20160130 1058)
+	 nil "Catalysis Preprint Archive" single
+	 ((:authors
+	   ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+	  (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))]))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+
+
+(make-index)
+#+END_SRC
+
+#+RESULTS:

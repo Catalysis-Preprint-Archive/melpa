@@ -1,0 +1,4 @@
+(cappa
+ :fetcher github
+ :repo "KitchinHUB/cappa"
+ :files (:defaults))

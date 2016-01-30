@@ -3,7 +3,7 @@ PKGDIR  := ./packages
 RCPDIR  := ./recipes
 HTMLDIR := ./html
 WORKDIR := ./working
-WEBROOT := $$HOME/www
+WEBROOT := /Users/jkitchin/Catalysis-Preprint-Archive/cappa-elpa
 EMACS_COMMAND   ?= emacs
 SLEEP   ?= 0
 SANDBOX := ./sandbox
@@ -21,7 +21,7 @@ EVAL := $(EMACS_COMMAND) --no-site-file --batch -l package-build.el --eval
 
 TIMEOUT := $(shell which timeout && echo "-k 60 600")
 
-all: packages packages/archive-contents json index
+all: packages packages/archive-contents cappa-index # json index
 
 ## General rules
 html: index
@@ -52,9 +52,11 @@ clean-sandbox:
 
 sync:
 	rsync -avz --delete $(PKGDIR)/ $(WEBROOT)/packages
-	rsync -avz --safe-links --delete $(HTMLDIR)/* $(WEBROOT)/
-	chmod -R go+rx $(WEBROOT)/packages/*
+	#rsync -avz --safe-links --delete $(HTMLDIR)/* $(WEBROOT)/
+	#chmod -R go+rx $(WEBROOT)/packages/*
 
+deploy:
+	$(MAKE) -C $(WEBROOT)
 
 clean: clean-working clean-packages clean-json clean-sandbox
 
@@ -93,6 +95,10 @@ $(RCPDIR)/%: .FORCE
 	@echo " Sleeping for $(SLEEP) ..."
 	sleep $(SLEEP)
 	@echo
+
+
+cappa-index:
+	$(EVAL) "(progn (load-file \"cappa-utils.el\") (make-index))"
 
 
 ## Sandbox
