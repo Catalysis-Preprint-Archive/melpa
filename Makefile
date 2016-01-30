@@ -51,7 +51,7 @@ clean-sandbox:
 	fi
 
 sync:
-	rsync -avz --delete $(PKGDIR)/ $(WEBROOT)/packages
+	rsync -avz --delete $(PKGDIR)/ $(WEBROOT)/preprints
 	#rsync -avz --safe-links --delete $(HTMLDIR)/* $(WEBROOT)/
 	#chmod -R go+rx $(WEBROOT)/packages/*
 
