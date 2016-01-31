@@ -1,4 +1,4 @@
 (cappa
  :fetcher github
- :repo "KitchinHUB/cappa"
+ :repo "Catalysis-Preprint-Archive/cappa"
  :files (:defaults))
