@@ -7,6 +7,201 @@ make sync
 make deploy
 #+END_SRC
 
+
+
+* Package page
+
+Goal: create an html page describing a package (preprint)
+
+We need to operate off this list so we can generate links to the package from the version.
+
+Here are the keys
+#+BEGIN_SRC emacs-lisp
+(-slice (package-build--archive-alist-for-json) 0 nil 2)
+#+END_SRC
+
+#+RESULTS:
+| :kitchingroup-57 | :kitchingroup-46 | :kitchingroup-43 | :cappa |
+
+And the values
+#+BEGIN_SRC emacs-lisp
+(-slice (package-build--archive-alist-for-json) 1 nil 2)
+#+END_SRC
+
+#+RESULTS:
+| :ver | (20160131 1005) | :deps | (:cappa (0)) | :desc | preprint http://dx.doi.org/10.1021/acscatal.5b00538. | :type | tar    | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
+| :ver | (20160131 1003) | :deps | nil          | :desc | preprint for doi:10.1021/ja5015986                   | :type | tar    | :props | ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986)) |
+| :ver | (20160131 1004) | :deps | (:cappa (0)) | :desc | preprint doi:10.1007/s11244-013-0166-3               | :type | tar    | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
+| :ver | (20160130 1736) | :deps | nil          | :desc | Catalysis Preprint Archive                           | :type | single | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
+
+Here are all the package names.
+#+BEGIN_SRC emacs-lisp
+(loop for (key ver type) in
+
+      (loop for key in (-slice (package-build--archive-alist-for-json) 0 nil 2)
+	    for data in (-slice (package-build--archive-alist-for-json) 1 nil 2)
+	    collect (list key (plist-get data :ver)
+			  (plist-get data :type)))
+      with link = ""
+      do
+      ;; convert key to string
+      (setq link
+	    (format "preprints/%s-%s.%s.%s"
+		    (substring (symbol-name key) 1)
+		    (nth 0 ver)
+		    (nth 1 ver)
+		    (if (eq 'single type)
+			"el"
+		      "tar")))
+
+      collect link)
+#+END_SRC
+
+#+RESULTS:
+| preprints/kitchingroup-57-20160131.1005.tar | preprints/kitchingroup-46-20160131.1003.tar | preprints/kitchingroup-43-20160131.1004.tar | preprints/cappa-20160130.1736.el |
+
+I would like to list the contents of the packages we can do that.
+
+#+BEGIN_SRC emacs-lisp
+(with-current-buffer (find-file-noselect "packages/kitchingroup-43-20160131.1004.tar")
+  (buffer-string))
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ drwxr-xr-x jkitchin/staff         0 kitchingroup-43-20160131.1004/
+ drwxr-xr-x jkitchin/staff         0 kitchingroup-43-20160131.1004/figures/
+ -rw-r--r-- jkitchin/staff    186892 kitchingroup-43-20160131.1004/figures/fig1.eps
+ -rw-r--r-- jkitchin/staff     88833 kitchingroup-43-20160131.1004/figures/fig1.pdf
+ -rw-r--r-- jkitchin/staff    129768 kitchingroup-43-20160131.1004/figures/fig1.png
+ -rw-r--r-- jkitchin/staff    273073 kitchingroup-43-20160131.1004/figures/fig2.eps
+ -rw-r--r-- jkitchin/staff    139698 kitchingroup-43-20160131.1004/figures/fig2.pdf
+ -rw-r--r-- jkitchin/staff    266863 kitchingroup-43-20160131.1004/figures/fig2.png
+ -rw-r--r-- jkitchin/staff    167960 kitchingroup-43-20160131.1004/figures/fig3.eps
+ -rw-r--r-- jkitchin/staff     75311 kitchingroup-43-20160131.1004/figures/fig3.pdf
+ -rw-r--r-- jkitchin/staff    140877 kitchingroup-43-20160131.1004/figures/fig3.png
+ -rw-r--r-- jkitchin/staff    410862 kitchingroup-43-20160131.1004/figures/fig4.eps
+ -rw-r--r-- jkitchin/staff    158292 kitchingroup-43-20160131.1004/figures/fig4.pdf
+ -rw-r--r-- jkitchin/staff    162265 kitchingroup-43-20160131.1004/figures/fig4.png
+ -rw-r--r-- jkitchin/staff    255085 kitchingroup-43-20160131.1004/figures/fig5.eps
+ -rw-r--r-- jkitchin/staff    111185 kitchingroup-43-20160131.1004/figures/fig5.pdf
+ -rw-r--r-- jkitchin/staff     96835 kitchingroup-43-20160131.1004/figures/fig5.png
+ -rw-r--r-- jkitchin/staff    206331 kitchingroup-43-20160131.1004/figures/fig6.eps
+ -rw-r--r-- jkitchin/staff     99547 kitchingroup-43-20160131.1004/figures/fig6.pdf
+ -rw-r--r-- jkitchin/staff    158377 kitchingroup-43-20160131.1004/figures/fig6.png
+ -rw-r--r-- jkitchin/staff    169507 kitchingroup-43-20160131.1004/figures/fig7.eps
+ -rw-r--r-- jkitchin/staff     75905 kitchingroup-43-20160131.1004/figures/fig7.pdf
+ -rw-r--r-- jkitchin/staff    153303 kitchingroup-43-20160131.1004/figures/fig7.png
+ -rw-r--r-- jkitchin/staff    175579 kitchingroup-43-20160131.1004/figures/fig8.eps
+ -rw-r--r-- jkitchin/staff     69173 kitchingroup-43-20160131.1004/figures/fig8.pdf
+ -rw-r--r-- jkitchin/staff     84890 kitchingroup-43-20160131.1004/figures/fig8.png
+ -rw-r--r-- jkitchin/staff       284 kitchingroup-43-20160131.1004/kitchingroup-43-pkg.el
+ -rw-r--r-- jkitchin/staff      2964 kitchingroup-43-20160131.1004/kitchingroup-43.el
+ -rw-r--r-- jkitchin/staff      1063 kitchingroup-43-20160131.1004/README.org
+ -rw-r--r-- jkitchin/staff     30142 kitchingroup-43-20160131.1004/spmpsci.bst
+ -rw-r--r-- jkitchin/staff    818254 kitchingroup-43-20160131.1004/supporting-information.org
+ -rw-r--r-- jkitchin/staff   1515771 kitchingroup-43-20160131.1004/supporting-information.pdf
+ -rw-r--r-- jkitchin/staff     34506 kitchingroup-43-20160131.1004/tpd-scaling.bib
+ -rw-r--r-- jkitchin/staff     53697 kitchingroup-43-20160131.1004/tpd-scaling.org
+ -rw-r--r-- jkitchin/staff   1035919 kitchingroup-43-20160131.1004/tpd-scaling.pdf
+ drwxr-xr-x jkitchin/staff         0 kitchingroup-43-20160131.1004/xls/
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd1.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd10.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd11.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd12.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd13.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd14.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd15.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd16.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd17.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd18.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd19.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd2.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd20.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd21.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd3.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd4.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd5.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd6.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd7.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd8.xls
+ -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd9.xls
+#+end_example
+
+Here is some minimal info.
+#+BEGIN_SRC emacs-lisp
+(defun cappa-package-html (key data)
+  "Create an html page for KEY and DATA.
+KEY is :label
+DATA is (plist-get (package-build--archive-alist-for-json) key)."
+  ;; first, gather information.
+  (let* ((package (substring (symbol-name key) 1))
+	 (pkg-el-file (expand-file-name
+		       (format "%s/%s.el" package package)
+		       package-build-working-dir))
+	 (type (plist-get data :type))
+	 (ver (plist-get data :ver))
+	 (pkg-base (format "%s-%s.%s"
+			   package
+			   (nth 0 ver)
+			   (nth 1 ver)))
+	 (pkg-file (format "%s.%s" pkg-base
+			   (if (eq 'single type)
+			       "el"
+			     "tar")))
+	 (html (format "%s/%s.html" "html/packages" package))
+	 author doi desc commentary)
+
+    (with-current-buffer (find-file-noselect pkg-el-file)
+      (setq author (lm-header "author")
+	    doi (or (lm-header "doi") "")
+	    desc (package-desc-summary (package-buffer-info))
+	    commentary (or (lm-commentary) "")))
+
+    (with-temp-file html
+      (insert
+       (s-format
+     "<html>
+<body>
+
+<h1>${desc}</h1>
+
+${author}<br>
+
+<a href=\"./preprints/${pkg-file}\">${pkg-file}</a>
+
+<pre>${commentary}</pre>
+
+<pre>
+Contents:
+${contents}
+</pre>
+
+</body></html>"
+
+     'aget
+     `(("desc" . ,desc)
+       ("author" . ,author)
+       ("pkg-file" . ,pkg-file)
+       ("commentary" . ,commentary)
+       ("contents" . ,(if (eq type 'single)
+			  ;; el-file
+			  pkg-file
+			;; tar-file
+			(with-current-buffer
+			    (find-file-noselect
+			     (format "packages/%s" pkg-file))
+			  (buffer-string))))))))))
+
+
+(let* ((e (package-build--archive-alist-for-json))
+       (key (nth 0 e))
+       (data (nth 1 e)))
+  (cappa-package-html key data))
+#+END_SRC
+
+#+RESULTS:
+
 * Known bugs
 There is a bug in the melpa/package code that is presently preventing the html from properly building. It is because :maintainer is not serializing correctly.
 
@@ -130,3 +325,6 @@ This reads the entry files, and they are the source of the bad maintainer files.
 
 #+RESULTS:
 | kitchingroup-43 | 20160130.1457 |
+
+
+**
