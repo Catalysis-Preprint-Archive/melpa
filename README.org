@@ -47,3 +47,86 @@ see https://github.com/milkypostman/melpa/issues/3548
     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))))
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp :results code
+(package-build-archive-alist)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC emacs-lisp
+((kitchingroup-57 .
+		  [(20160130 1457)
+		   ((cappa
+		     (0)))
+		   "preprint http://dx.doi.org/10.1021/acscatal.5b00538." tar
+		   ((:authors
+		     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+		    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))])
+ (kitchingroup-43 .
+		  [(20160130 1457)
+		   ((cappa
+		     (0)))
+		   "preprint doi:10.1007/s11244-013-0166-3" tar
+		   ((:authors
+		     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+		    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))])
+ (cappa .
+	[(20160130 1058)
+	 nil "Catalysis Preprint Archive" single
+	 ((:authors
+	   ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+	  (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))]))
+#+END_SRC
+
+It looks like archive contents has the bad maintainer lines.
+
+This reads the entry files, and they are the source of the bad maintainer files.
+#+BEGIN_SRC emacs-lisp :results code
+(package-build--archive-entries)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC emacs-lisp
+((kitchingroup-57 .
+		  [(20160130 1457)
+		   ((cappa
+		     (0)))
+		   "preprint http://dx.doi.org/10.1021/acscatal.5b00538." tar
+		   ((:authors
+		     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+		    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))])
+ (kitchingroup-46 .
+		  [(20160131 704)
+		   nil "preprint for doi:10.1021/ja5015986" tar
+		   ((:authors
+		     ("Ethan L. Demeter, Shayna L. Hilburg, Newell R. Washburn, Terrence J. Collins and John R. Kitchin" . "jkitchin@andrew.cmu.edu"))
+		    (:maintainer "Ethan L. Demeter, Shayna L. Hilburg, Newell R. Washburn, Terrence J. Collins and John R. Kitchin" . "jkitchin@andrew.cmu.edu")
+		    (:url . "http://dx.doi.org/10.1021/ja5015986"))])
+ (kitchingroup-43 .
+		  [(20160130 1457)
+		   ((cappa
+		     (0)))
+		   "preprint doi:10.1007/s11244-013-0166-3" tar
+		   ((:authors
+		     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+		    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))])
+ (cappa .
+	[(20160130 1058)
+	 nil "Catalysis Preprint Archive" single
+	 ((:authors
+	   ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
+	  (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))]))
+#+END_SRC
+
+** Checking a build
+#+BEGIN_SRC emacs-lisp
+(load-file "package-build.el")
+(let ((package-build-stable nil)
+      (package-build-write-melpa-badge-images t)
+      (package-build-archive-dir
+       (expand-file-name "packages" package-build--this-dir)))
+  (package-build-archive 'kitchingroup-43))
+#+END_SRC
+
+#+RESULTS:
+| kitchingroup-43 | 20160130.1457 |
