@@ -21,7 +21,7 @@ EVAL := $(EMACS_COMMAND) --no-site-file --batch -l package-build.el --eval
 
 TIMEOUT := $(shell which timeout && echo "-k 60 600")
 
-all: packages packages/archive-contents cappa-index # json index
+all: packages packages/archive-contents cappa-index json index
 
 ## General rules
 html: index
@@ -52,7 +52,8 @@ clean-sandbox:
 
 sync:
 	rsync -avz --delete $(PKGDIR)/ $(WEBROOT)/preprints
-	#rsync -avz --safe-links --delete $(HTMLDIR)/* $(WEBROOT)/
+	rsync -avz --safe-links --delete $(HTMLDIR)/* $(WEBROOT)/html
+	rsync -avz index.html $(WEBROOT)/index.html
 	#chmod -R go+rx $(WEBROOT)/packages/*
 
 deploy:
