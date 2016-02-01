@@ -1,9 +1,17 @@
+;;; cappa-utils.el --- utilities for CaPPA
+
+;;; Commentary:
+;;
+
 (require 'cl)
+;;; Code:
+
 (add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/s-20140910.334")
 (add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/dash-20150717.1321")
+(add-to-list 'load-path "/Users/jkitchin/Catalysis-Preprint-Archive/melpa")
 (require 's)
 (require 'dash)
-(load-file "package-build.el")
+(require 'package-build)
 
 (defun make-index ()
   (let ((data (package-build-archive-alist)))
@@ -81,23 +89,31 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 			       "el"
 			     "tar")))
 	 (html (format "%s/%s.html" "html/packages" pkg-base))
-	 author doi desc commentary)
+	 author doi desc commentary bibtex)
 
     (with-current-buffer (find-file-noselect pkg-el-file)
       (setq author (lm-header "author")
-	    doi (or (lm-header "doi") "")
+	    doi (lm-header "doi")
+	    bibtex (or (lm-header "bibtex") "No bibtex entry found.")
 	    desc (package-desc-summary (package-buffer-info))
 	    commentary (or (lm-commentary) "")))
 
     (with-temp-file html
       (insert
        (s-format
-     "<html>
+	"<html>
+<script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
 <body>
 
-<h1>${desc}</h1>
+<h1>${package}</h1>
+<a href=\"http://catalysis-preprint-archive.github.io\">Home</a><br>
+<img src=\"${package}-badge.svg\">
+${altmetric}
+${scopus-cite}
+<br>
+<a href=\"http://dx.doi.org/${doi}\">DOI</a>
 
-${author}<br>
+<pre>${bibtex}</pre>
 
 <a href=\"${pkg-file}\">${pkg-file}</a>
 
@@ -110,19 +126,28 @@ ${contents}
 
 </body></html>"
 
-     'aget
-     `(("desc" . ,desc)
-       ("author" . ,author)
-       ("pkg-file" . ,pkg-file)
-       ("commentary" . ,commentary)
-       ("contents" . ,(if (eq type 'single)
-			  ;; el-file
-			  pkg-file
-			;; tar-file
-			(with-current-buffer
-			    (find-file-noselect
-			     (format "packages/%s" pkg-file))
-			  (buffer-string))))))))))
+	'aget
+	`(("package" . ,package)
+	  ("desc" . ,desc)
+	  ("author" . ,author)
+	  ("pkg-file" . ,pkg-file)
+	  ("commentary" . ,commentary)
+	  ("bibtex" . ,bibtex)
+	  ("doi" . ,(or doi ""))
+	  ("altmetric" . ,(if doi
+			      (format "<div data-badge-type='medium-donut' class='altmetric-embed' data-badge-details='right' data-doi='%s'></div>" doi)
+			    ""))
+	  ("scopus-cite" . ,(if doi
+				(format "<img src=\"http://api.elsevier.com/content/abstract/citation-count?doi=%s&amp;httpAccept=image/jpeg&amp;apiKey=5cd06d8a7df3de986bf3d0cd9971a47c\">" doi)
+			      ""))
+	  ("contents" . ,(if (eq type 'single)
+			     ;; el-file
+			     pkg-file
+			   ;; tar-file
+			   (with-current-buffer
+			       (find-file-noselect
+				(format "packages/%s" pkg-file))
+			     (buffer-string))))))))))
 
 
 (defun cappa-generate-package-html ()
@@ -131,3 +156,37 @@ ${contents}
 	for data in (-slice (package-build--archive-alist-for-json) 1 nil 2)
 	do
 	(cappa-package-html key data)))
+
+
+;; This redefines lm-header in lisp-mnt.el to read multiline headers. This was broken in the provided functions.
+(require 'lisp-mnt)
+
+(defun lm-header (header)
+  "Return the contents of the header named HEADER.
+If the HEADER is multiline, a list of strings is returned."
+  (save-excursion
+    (goto-char (point-min))
+    (let ((case-fold-search t)
+	  res)
+      (when (and (re-search-forward
+		  (lm-get-header-re header)
+		  (lm-code-mark) t)
+                 ;;   RCS ident likes format "$identifier: data$"
+                 (looking-at
+                  (if (save-excursion
+                        (skip-chars-backward "^$" (match-beginning 0))
+                        (= (point) (match-beginning 0)))
+                      "[^\n]+" "[^$\n]+")))
+	(setq res (list (match-string-no-properties 0)))
+	(forward-line 1)
+	(while (looking-at "^;+\\(\t\\|[\t\s]\\{2,\\}\\)\\(.+\\)")
+	  (push (match-string-no-properties 2) res)
+	  (forward-line 1))
+	(setq res (nreverse res))
+	(if (= 1 (length res))
+	    (car res)
+	  (mapconcat 'identity res "\n"))))))
+
+(provide 'cappa-utils)
+
+;;; cappa-utils.el ends here
