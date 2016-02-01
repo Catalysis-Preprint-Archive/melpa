@@ -104,7 +104,7 @@ cappa-index:
 	$(EVAL) "(progn (load-file \"cappa-utils.el\") (make-index))"
 
 cappa-html:
-	$(EVAL) "(progn (load-file \"cappa-utils.el\") (cappa-generate-package-html))"
+	$(EVAL) "(progn (load-file \"cappa-utils.el\") (setq large-file-warning-threshold nil) (cappa-generate-package-html))"
 ## Sandbox
 sandbox: packages/archive-contents
 	@echo " • Building sandbox ..."
