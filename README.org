@@ -327,4 +327,94 @@ This reads the entry files, and they are the source of the bad maintainer files.
 | kitchingroup-43 | 20160130.1457 |
 
 
-**
+
+
+
+* Checking for bug
+#+BEGIN_SRC emacs-lisp :results raw
+(progn (find-file "working/kitchingroup-43/kitchingroup-43.el")
+(package-build--package-buffer-info-vec))
+#+END_SRC
+
+
+
+#+BEGIN_SRC emacs-lisp
+(load-file "package-build.el")
+(package-build--archive-alist-for-json)
+#+END_SRC
+
+#+RESULTS:
+| :kitchingroup-9 | (:ver (20160131 1904) :deps nil :desc preprint :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-7 | (:ver (20160131 1850) :deps nil :desc CaPPA preprint for doi:10.1063/1.1737365 :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-62 | (:ver (20160131 2149) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-60 | (:ver (20160201 652) :deps nil :desc CaPPA preprint for doi:10.1016/j.susc.2015.10.001 :type tar :props ((:authors (Hari Thirumalai)) (:maintainer (Hari Thirumalai)))) | :kitchingroup-57 | (:ver (20160131 1841) :deps (:cappa (0)) :desc preprint http://dx.doi.org/10.1021/acscatal.5b00538. :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-56 | (:ver (20160201 842) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-46 | (:ver (20160131 1840) :deps nil :desc preprint for doi:10.1021/ja5015986 :type tar :props ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986))) | :kitchingroup-43 | (:ver (20160131 1838) :deps (:cappa (0)) :desc preprint doi:10.1007/s11244-013-0166-3 :type tar :props ((:authors (Spencer D. Miller)) (:maintainer (Spencer D. Miller)) (:url . http://link.springer.com/article/10.1007%2Fs11244-013-0166-3))) | :cappa | (:ver (20160201 1345) :deps nil :desc Catalysis Preprint Archive :type single :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) |
+
+
+emacs --no-site-file --batch -l package-build.el --eval '(let ((package-build-stable nil) (package-build-archive-dir (expand-file-name "./packages/" package-build--this-dir))) (package-build-archive-alist-as-json "html/archive.json"))'
+Wrong type argument: listp, "jkitchin@andrew.cmu.edu"
+
+#+BEGIN_SRC emacs-lisp
+(let ((package-build-stable nil)
+      (package-build-archive-dir (expand-file-name "./packages/" package-build--this-dir)))
+  (package-build-archive-alist-as-json "html/archive.json"))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(json-encode (package-build--archive-alist-for-json))
+#+END_SRC
+
+#+RESULTS:
+: {"kitchingroup-9":{"ver":[20160131,1904],"deps":null,"desc":"preprint","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-7":{"ver":[20160131,1850],"deps":null,"desc":"CaPPA preprint for doi:10.1063/1.1737365","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-62":{"ver":[20160131,2149],"deps":null,"desc":"CaPPA preprint for doi:","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-60":{"ver":[20160201,652],"deps":null,"desc":"CaPPA preprint for doi:10.1016/j.susc.2015.10.001","type":"tar","props":{"authors":{"Hari Thirumalai":null},"maintainer":{"Hari Thirumalai":null}}},"kitchingroup-57":{"ver":[20160131,1841],"deps":{"cappa":[0]},"desc":"preprint http://dx.doi.org/10.1021/acscatal.5b00538.","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-56":{"ver":[20160201,842],"deps":null,"desc":"CaPPA preprint for doi:","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-46":{"ver":[20160131,1840],"deps":null,"desc":"preprint for doi:10.1021/ja5015986","type":"tar","props":{"authors":{"John R. Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John R. Kitchin":"jkitchin@andrew.cmu.edu"},"url":"http://dx.doi.org/10.1021/ja5015986"}},"kitchingroup-43":{"ver":[20160131,1838],"deps":{"cappa":[0]},"desc":"preprint doi:10.1007/s11244-013-0166-3","type":"tar","props":{"authors":{"Spencer D. Miller":null},"maintainer":{"Spencer D. Miller":null},"url":"http://link.springer.com/article/10.1007%2Fs11244-013-0166-3"}},"cappa":{"ver":[20160201,1345],"deps":null,"desc":"Catalysis Preprint Archive","type":"single","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}}}
+
+#+BEGIN_SRC emacs-lisp
+(package-build--archive-alist-for-json)
+#+END_SRC
+
+#+RESULTS:
+| :kitchingroup-9 | (:ver (20160131 1904) :deps nil :desc preprint :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-7 | (:ver (20160131 1850) :deps nil :desc CaPPA preprint for doi:10.1063/1.1737365 :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-62 | (:ver (20160131 2149) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-60 | (:ver (20160201 652) :deps nil :desc CaPPA preprint for doi:10.1016/j.susc.2015.10.001 :type tar :props ((:authors (Hari Thirumalai)) (:maintainer (Hari Thirumalai)))) | :kitchingroup-57 | (:ver (20160131 1841) :deps (:cappa (0)) :desc preprint http://dx.doi.org/10.1021/acscatal.5b00538. :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-56 | (:ver (20160201 842) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-46 | (:ver (20160131 1840) :deps nil :desc preprint for doi:10.1021/ja5015986 :type tar :props ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986))) | :kitchingroup-43 | (:ver (20160131 1838) :deps (:cappa (0)) :desc preprint doi:10.1007/s11244-013-0166-3 :type tar :props ((:authors (Spencer D. Miller)) (:maintainer (Spencer D. Miller)) (:url . http://link.springer.com/article/10.1007%2Fs11244-013-0166-3))) | :cappa | (:ver (20160201 1345) :deps nil :desc Catalysis Preprint Archive :type single :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) |
+
+
+#+BEGIN_SRC emacs-lisp
+(condition-case nil
+    (json-encode '(:maintainer "John" . "my@email.com"))
+  (error "error"))
+#+END_SRC
+
+#+RESULTS:
+: error
+
+#+BEGIN_SRC emacs-lisp
+(condition-case nil
+    (json-encode '(:maintainer ("John" . "my@email.com")))
+  (error "error"))
+#+END_SRC
+
+#+RESULTS:
+: error
+
+
+#+BEGIN_SRC emacs-lisp
+(condition-case nil
+    (json-encode '(:maintainer (("John" . "my@email.com"))))
+  (error "error"))
+#+END_SRC
+
+#+RESULTS:
+: {"maintainer":{"John":"my@email.com"}}
+
+
+This code does not work.
+
+#+BEGIN_SRC emacs-lisp
+(json-encode-list '(:maintainer ("John" . "my@email.com")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(listp '(:maintainer ("John" . "my@email.com")))
+#+END_SRC
+
+#+RESULTS:
+: t
+
+
+#+BEGIN_SRC emacs-lisp
+(json-encode-array '(:maintainer ("John" . "my@email.com")))
+#+END_SRC

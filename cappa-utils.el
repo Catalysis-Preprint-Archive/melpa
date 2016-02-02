@@ -8,12 +8,19 @@
 
 (add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/s-20140910.334")
 (add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/dash-20150717.1321")
+(add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/hydra-20150723.154")
+(add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/org-ref")
+
+(load-file "/Users/jkitchin/Catalysis-Preprint-Archive/melpa/private-scopus-key.el")
+(require 'org-ref-scopus)
+
 (add-to-list 'load-path "/Users/jkitchin/Catalysis-Preprint-Archive/melpa")
 (require 's)
 (require 'dash)
 (require 'package-build)
 
 (defun make-index ()
+  "Create the main index page for CaPPA."
   (let ((data (package-build-archive-alist)))
     (with-temp-file "index.html"
       (insert "<!DOCTYPE html>
@@ -47,9 +54,9 @@
 </tr>"
 		       'elt
 		       (list
-			(symbol-name label)    ;0
-			(elt props 2)	      ;1 description
-			(format "%s" (nth 0 (elt props 0))) ; 2major version
+			(symbol-name label)		     ;0
+			(elt props 2)			     ;1 description
+			(format "%s" (nth 0 (elt props 0)))  ; 2major version
 			(format "%s" (nth 1 (elt props 0)))) ; 3
 		       )))
       (insert "</table>")
@@ -70,7 +77,7 @@
 
 
 (defun cappa-package-html (key data)
-  "Create an html page for KEY and DATA.
+  "Create an html page for the package represented by KEY and DATA.
 KEY is :label
 DATA is (plist-get (package-build--archive-alist-for-json) key)."
   ;; first, gather information.
@@ -89,7 +96,12 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 			       "el"
 			     "tar")))
 	 (html (format "%s/%s.html" "html/packages" pkg-base))
-	 author doi desc commentary bibtex)
+	 author doi desc commentary bibtex
+	 scopus-citing
+	 scopus-related-by-keyword
+	 scopus-related-by-author
+	 scopus-related-by-references
+	 wos-citing wos-related)
 
     (with-current-buffer (find-file-noselect pkg-el-file)
       (setq author (lm-header "author")
@@ -97,6 +109,32 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 	    bibtex (or (lm-header "bibtex") "No bibtex entry found.")
 	    desc (package-desc-summary (package-buffer-info))
 	    commentary (or (lm-commentary) "")))
+
+    (when doi
+      (setq ;; scopus-citing (format
+	    ;;		   "<a href=\"%s\">citing articles</a>"
+	    ;;		   (scopus-citing-url doi))
+	    ;; scopus-related-by-keyword (format
+				       ;; "<a href=\"%s\">Keyword</a>"
+				       ;; (scopus-related-by-keyword-url doi)
+				       ;;)
+	    ;; scopus-related-by-author (format
+				      ;; "<a href=\"%s\">Author</a>"
+				      ;; (scopus-related-by-author-url doi)
+				      ;;)
+	    ;; scopus-related-by-references (format
+				       ;; "<a href=\"%s\">References</a>"
+				       ;; (scopus-related-by-references-url doi)
+				       ;;)
+	    wos-related (format "<a href=\"%s\">related</a>"
+				(concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
+					doi
+					"&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes"))
+	    wos-citing (format "<a href=\"%s\">citing</a>"
+			       (concat
+				"http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
+				doi
+				"&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes"))))
 
     (with-temp-file html
       (insert
@@ -108,14 +146,20 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 <h1>${package}</h1>
 <a href=\"http://catalysis-preprint-archive.github.io\">Home</a><br>
 <img src=\"${package}-badge.svg\">
+<a href=\"http://dx.doi.org/${doi}\">DOI</a>  <a href=\"http://github.com/${repo}\">http://github.com/${repo}</a>
 ${altmetric}
-${scopus-cite}
+${scopus-cite-badge}<br>
+<!-- Scopus (these links require Institutional access)<br> -->
+<!-- It seems like these scopus links don't actually work. -->
+<!-- Related articles by: K${scopus-related-by-keyword}  A${scopus-related-by-author}  R${scopus-related-by-references} -->
 <br>
-<a href=\"http://dx.doi.org/${doi}\">DOI</a>
+WOS: ${wos-citing} ${wos-related}
+<br>
+
 
 <pre>${bibtex}</pre>
 
-<a href=\"${pkg-file}\">${pkg-file}</a>
+<a href=\"${pkg-file}\">${pkg-file}</a> (${archive-size})
 
 <pre>${commentary}</pre>
 
@@ -131,15 +175,19 @@ ${contents}
 	  ("desc" . ,desc)
 	  ("author" . ,author)
 	  ("pkg-file" . ,pkg-file)
-	  ("commentary" . ,commentary)
-	  ("bibtex" . ,bibtex)
+	  ("repo" . ,(with-current-buffer (find-file-noselect (format "recipes/%s" package))
+		       (plist-get (cdr (read (current-buffer))) :repo)))
+	  ("archive-size" . ,(shell-command-to-string (format "du -hs packages/%s" pkg-file)))
+	  ("commentary" . ,(or commentary ""))
+	  ("bibtex" . ,(or bibtex ""))
 	  ("doi" . ,(or doi ""))
 	  ("altmetric" . ,(if doi
 			      (format "<div data-badge-type='medium-donut' class='altmetric-embed' data-badge-details='right' data-doi='%s'></div>" doi)
 			    ""))
-	  ("scopus-cite" . ,(if doi
-				(format "<img src=\"http://api.elsevier.com/content/abstract/citation-count?doi=%s&amp;httpAccept=image/jpeg&amp;apiKey=5cd06d8a7df3de986bf3d0cd9971a47c\">" doi)
-			      ""))
+	  ("scopus-cite-badge" . ,(if doi
+				      (format "<object height=\"50\" data=\"http://api.elsevier.com/content/abstract/citation-count?doi=%s&amp;httpAccept=image/jpeg&amp;apiKey=5cd06d8a7df3de986bf3d0cd9971a47c\"></object>"
+					      doi)
+				    ""))
 	  ("contents" . ,(if (eq type 'single)
 			     ;; el-file
 			     pkg-file
@@ -147,7 +195,12 @@ ${contents}
 			   (with-current-buffer
 			       (find-file-noselect
 				(format "packages/%s" pkg-file))
-			     (buffer-string))))))))))
+			     (buffer-string))))
+	  ("scopus-related-by-keyword" . ,(or scopus-related-by-keyword ""))
+	  ("scopus-related-by-author" . ,(or scopus-related-by-author ""))
+	  ("scopus-related-by-references" . ,(or scopus-related-by-references ""))
+	  ("wos-citing" . ,(or wos-citing ""))
+	  ("wos-related" . ,(or wos-related ""))))))))
 
 
 (defun cappa-generate-package-html ()

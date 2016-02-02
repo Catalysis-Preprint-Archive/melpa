@@ -1279,7 +1279,7 @@ Returns the archive entry for the package."
 ;; save the network overhead.
 (defun package-build--write-melpa-badge-image (package-name version target-dir)
   (let ((badge-url (concat "https://img.shields.io/badge/"
-                           (if package-build-stable "melpa stable" "melpa")
+                           (if package-build-stable "CaPPA stable" "CaPPA")
                            "-"
                            (url-hexify-string version)
                            "-"
