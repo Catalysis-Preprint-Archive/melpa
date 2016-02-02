@@ -21,7 +21,7 @@ EVAL := $(EMACS_COMMAND) --no-site-file --batch -l package-build.el --eval
 
 TIMEOUT := $(shell which timeout && echo "-k 60 600")
 
-all: packages packages/archive-contents cappa-index cappa-html json index
+all: packages packages/archive-contents cappa-index cappa-html json index sync deploy
 
 ## General rules
 html: index
