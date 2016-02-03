@@ -1,0 +1,5 @@
+(kitchingroup-55
+ :fetcher github
+ :repo "KitchinHUB/kitchingroup-55"
+ :files (:defaults "README.org" "manuscript.org" "manuscript.pdf"
+		   "supporting-information.org" "supporting-information.pdf"))
