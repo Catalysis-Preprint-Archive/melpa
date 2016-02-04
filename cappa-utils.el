@@ -19,61 +19,61 @@
 (require 'dash)
 (require 'package-build)
 
-(defun make-index ()
-  "Create the main index page for CaPPA."
-  (let ((data (package-build-archive-alist)))
-    (with-temp-file "index.html"
-      (insert "<!DOCTYPE html>
-<html lang=\"en-us\">
-  <head>
-    <meta charset=\"UTF-8\">
-    <title>Catalysis-Preprint-Archive</title>
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-    <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/normalize.css\" media=\"screen\">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/stylesheet.css\" media=\"screen\">
-    <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/github-light.css\" media=\"screen\">
-  </head>
-  <body>
-    <section class=\"page-header\">
-      <h1 class=\"project-name\">Catalysis Preprint Archive</h1>
-      <a href=\"https://github.com/Catalysis-Preprint-Archive/cappa\" class=\"btn\">View on GitHub</a>
-    </section>
+;; (defun make-index ()
+;;   "Create the main index page for CaPPA."
+;;   (let ((data (package-build-archive-alist)))
+;;     (with-temp-file "index.html"
+;;       (insert "<!DOCTYPE html>
+;; <html lang=\"en-us\">
+;;   <head>
+;;     <meta charset=\"UTF-8\">
+;;     <title>Catalysis-Preprint-Archive</title>
+;;     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+;;     <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/normalize.css\" media=\"screen\">
+;;     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+;;     <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/stylesheet.css\" media=\"screen\">
+;;     <link rel=\"stylesheet\" type=\"text/css\" href=\"stylesheets/github-light.css\" media=\"screen\">
+;;   </head>
+;;   <body>
+;;     <section class=\"page-header\">
+;;       <h1 class=\"project-name\">Catalysis Preprint Archive</h1>
+;;       <a href=\"https://github.com/Catalysis-Preprint-Archive/cappa\" class=\"btn\">View on GitHub</a>
+;;     </section>
 
-    <section class=\"main-content\">
-      Welcome to the Catalysis Preprint Archive.
-     </section>
-")
-      (insert "<table border=\"1\" cellpadding=\"10\">")
-      (loop for (label . props) in data
-	    do
-	    (insert
-	     (s-format "<tr>
-<td><a href=\"./preprints/$0-$2.$3.html\">$0</a></td>
-<td>$1</td>
-</tr>"
-		       'elt
-		       (list
-			(symbol-name label)		     ;0
-			(elt props 2)			     ;1 description
-			(format "%s" (nth 0 (elt props 0)))  ; 2major version
-			(format "%s" (nth 1 (elt props 0)))) ; 3
-		       )))
-      (insert "</table>")
+;;     <section class=\"main-content\">
+;;       Welcome to the Catalysis Preprint Archive.
+;;      </section>
+;; ")
+;;       (insert "<table border=\"1\" cellpadding=\"10\">")
+;;       (loop for (label . props) in data
+;;	    do
+;;	    (insert
+;;	     (s-format "<tr>
+;; <td><a href=\"./preprints/$0-$2.$3.html\">$0</a></td>
+;; <td>$1</td>
+;; </tr>"
+;;		       'elt
+;;		       (list
+;;			(symbol-name label)		     ;0
+;;			(elt props 2)			     ;1 description
+;;			(format "%s" (nth 0 (elt props 0)))  ; 2major version
+;;			(format "%s" (nth 1 (elt props 0)))) ; 3
+;;		       )))
+;;       (insert "</table>")
 
-      (insert "            <script type=\"text/javascript\">
-            var gaJsHost = ((\"https:\" == document.location.protocol) ? \"https://ssl.\" : \"http://www.\");
-            document.write(unescape(\"%3Cscript src='\" + gaJsHost + \"google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E\"));
-          </script>
-          <script type=\"text/javascript\">
-            try {
-              var pageTracker = _gat._getTracker(\"UA-73115520-1\");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
+;;       (insert "            <script type=\"text/javascript\">
+;;             var gaJsHost = ((\"https:\" == document.location.protocol) ? \"https://ssl.\" : \"http://www.\");
+;;             document.write(unescape(\"%3Cscript src='\" + gaJsHost + \"google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E\"));
+;;           </script>
+;;           <script type=\"text/javascript\">
+;;             try {
+;;               var pageTracker = _gat._getTracker(\"UA-73115520-1\");
+;;             pageTracker._trackPageview();
+;;             } catch(err) {}
+;;           </script>
 
-  </body>
-</html>"))))
+;;   </body>
+;; </html>"))))
 
 
 (defun cappa-package-html (key data)
@@ -146,7 +146,7 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 <h1>${package}</h1>
 <a href=\"http://catalysis-preprint-archive.github.io\">Home</a><br>
 <img src=\"${package}-badge.svg\">
-<a href=\"http://dx.doi.org/${doi}\">DOI</a>  <a href=\"http://github.com/${repo}\">http://github.com/${repo}</a>
+<a href=\"http://dx.doi.org/${doi}\">DOI</a> ${repo}
 ${altmetric}
 ${scopus-cite-badge}<br>
 <!-- Scopus (these links require Institutional access)<br> -->
@@ -176,7 +176,27 @@ ${contents}
 	  ("author" . ,author)
 	  ("pkg-file" . ,pkg-file)
 	  ("repo" . ,(with-current-buffer (find-file-noselect (format "recipes/%s" package))
-		       (plist-get (cdr (read (current-buffer))) :repo)))
+		       (let ((data (cdr (read (current-buffer)))))
+			 (cond
+			  ((eq 'github (plist-get data :fetcher))
+			   (format "<a href=\"http://github.com/%s\">http://github.com/%s</a>"
+				   (plist-get data :repo)
+				   (plist-get data :repo)))
+			  ((eq 'gitlab (plist-get data :fetcher))
+			   (format "<a href=\"http://gitlab.com/%s\">http://gitlab.com/%s</a>"
+				   (plist-get data :repo)
+				   (plist-get data :repo)))
+			  ((eq 'bitbucket (plist-get data :fetcher))
+			   (format "<a href=\"http://bitbucket.com/%s\">http://bitbucket.com/%s</a>"
+				   (plist-get data :repo)
+				   (plist-get data :repo)))
+			  ((or (eq 'zenodo (plist-get data :fetcher))
+			       (eq 'dropbox (plist-get data :fetcher)))
+			   (format "<a href=\"%s\">%s</a>"
+				   (plist-get data :url)
+				   (plist-get data :url)))
+			  (t
+			   "Couldn't figure out repo from recipe.")))))
 	  ("archive-size" . ,(shell-command-to-string (format "du -hs packages/%s" pkg-file)))
 	  ("commentary" . ,(or commentary ""))
 	  ("bibtex" . ,(or bibtex ""))
