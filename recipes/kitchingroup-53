@@ -1,0 +1,5 @@
+(kitchingroup-53
+ :fetcher dropbox
+ :url "https://www.dropbox.com/sh/ci6b2fq76th2vqr/AABduyYxnFFJ2uO1HJrp50FEa?dl=1"
+ :files (:defaults "README.org" "manuscript.org" "manuscript.pdf"
+		   "supporting-information.org" "supporting-information.pdf"))

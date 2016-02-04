@@ -1,0 +1,7 @@
+(kitchingroup-48
+ :fetcher bitbucket
+ :repo "jkitchin/kitchingroup-48"
+ :files (:defaults "manuscript.org" "manuscript.pdf"
+	 "supporting-information.org"
+	 "supporting-information.pdf"
+	 "README.org"))

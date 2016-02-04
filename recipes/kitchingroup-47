@@ -1,0 +1,4 @@
+(kitchingroup-47
+ :fetcher gitlab
+ :repo "jkitchin/kitchingroup-47"
+ :files ("*"))

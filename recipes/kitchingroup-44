@@ -1,0 +1,4 @@
+(kitchingroup-44
+ :fetcher git
+ :url "https://bitbucket.org/jkitchin/kitchingroup-44.git"
+ :files ("*"))
