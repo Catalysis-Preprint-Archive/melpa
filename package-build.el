@@ -671,6 +671,110 @@ Return a cons cell whose `car' is the root and whose `cdr' is the repository."
         (package-build--find-parse-time
          "\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [0-9]\\{2\\}:[0-9]\\{2\\}\\( [+-][0-9]\\{4\\}\\)?\\)")))))
 
+
+(defun package-build--checkout-zenodo (name config dir)
+  ;; name is the package name.
+  ;; config is the recipe stuff
+  ;; dir is the working dir
+  ;; We only run this once to avoid a new version each time.
+  (unless (file-exists-p dir)
+    (make-directory dir t)
+
+    (let ((url (plist-get config :url))
+	  (files (plist-get config :files)))
+      (cl-loop for file in files
+	       do
+	       (package-build--url-copy-file
+		(format "%s/files/%s" url file)
+		(expand-file-name file dir)
+		t)))
+    (format-time-string "%Y%m%d.%H%M")))
+
+
+(defun package-build--checkout-figshare (name config dir)
+  ;; name is the package name.
+  ;; config is the recipe stuff
+  ;; dir is the working dir
+  ;;
+  ;; We use the NLM link to find the download links for each file. Note this
+  ;;  only runs once. you have to manually delete the working folder to recreate
+  ;;  the package. This is to avoid creating a new version every time since
+  ;;  there isn't a smart way to check for changes.
+  (unless (file-exists-p dir)
+    (make-directory dir t)
+
+    (let* ((url (plist-get config :url))
+	   (files (plist-get config :files))
+	   (xml (car (with-current-buffer (url-retrieve-synchronously
+					   url)
+		       (xml-parse-region url-http-end-of-headers (point-max)))))
+	   (article (car (xml-get-children xml 'article)))
+	   (front (car (xml-get-children article 'front)))
+	   (article-meta (car (xml-get-children front 'article-meta)))
+	   (uris (xml-get-children article-meta 'self-uri))
+	   (file-alist (cl-loop for uri in uris
+				with url = nil
+				do
+				(setq url (cl-cdaadr uri))
+				collect (cons (file-name-nondirectory url)
+					      url)))
+	   (default-directory dir))
+
+      (cl-loop for file in files
+	       do
+	       ;; It appears they do a weird thing here removing - from the file
+	       ;; names. At least for the NLM link
+	       (setq file (replace-regexp-in-string "-" "" file))
+	       (package-build--url-copy-file
+		(cdr (assoc file file-alist))
+		file
+		t)))
+    (format-time-string "%Y%m%d.%H%M")))
+
+(defun package-build--checkout-dropbox (name config dir)
+  ;; name is the package name.
+  ;; config is the recipe stuff
+  ;; dir is the working dir
+  (unless (file-exists-p dir)
+    (make-directory dir t))
+
+  (let ((url (plist-get config :url))
+	(zipfile (format "%s.zip" name))
+	(md5-file (format "%s.zip.md5" name))
+	(version-file (format "%s.zip.version" name))
+	(default-directory dir)
+	md5 version)
+    (when (file-exists-p (concat zipfile ".md5"))
+      (setq md5 (with-current-buffer (find-file-noselect md5-file)
+		  (buffer-string))))
+
+    (when (file-exists-p version-file)
+      (setq version (with-current-buffer (find-file-noselect version-file)
+		      (buffer-string))))
+
+    ;; We need to get the zipfile and its md5
+    (package-build--url-copy-file
+     url
+     zipfile
+     t)
+
+    (if (string= md5 (shell-command-to-string (format "md5 %s" zipfile)))
+	;; no change, return version
+	version
+      ;; there must be a change, unzip, and update md5 and version
+      (shell-command (format "unzip %s" zipfile))
+
+      (setq md5 (shell-command-to-string (format "md5 %s" zipfile)))
+      (with-temp-file md5-file
+		     (insert md5))
+      (setq version
+	    (format-time-string "%Y%m%d.%H%M"))
+      (with-temp-file version-file
+	(insert version))
+      version)))
+
+
+
 (defun package-build--dump (data file &optional pretty-print)
   "Write DATA to FILE as a Lisp sexp.
 Optionally PRETTY-PRINT the data."
