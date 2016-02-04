@@ -418,3 +418,89 @@ This code does not work.
 #+BEGIN_SRC emacs-lisp
 (json-encode-array '(:maintainer ("John" . "my@email.com")))
 #+END_SRC
+
+* A zenodo builder
+
+emacs --no-site-file --batch -l package-build.el --eval "(let ((package-build-stable nil) (package-build-write-melpa-badge-images t) (package-build-archive-dir (expand-file-name \"./packages\" package-build--this-dir))) (package-build-archive 'kitchingroup-42))"
+
+
+#+BEGIN_SRC emacs-lisp
+(package-build-recipe-alist)
+#+END_SRC
+
+#+RESULTS:
+| cappa           | :fetcher | github | :repo | Catalysis-Preprint-Archive/cappa                            | :files | (:defaults)                                                                                                |
+| kitchingroup-43 | :fetcher | github | :repo | KitchinHUB/kitchingroup-43                                  | :files | (*)                                                                                                        |
+| kitchingroup-44 | :fetcher | git    | :url  | https://jkitchin@bitbucket.org/jkitchin/kitchingroup-44.git | :files | (*)                                                                                                        |
+| kitchingroup-46 | :fetcher | github | :repo | KitchinHUB/kitchingroup-46                                  | :files | (*)                                                                                                        |
+| kitchingroup-47 | :fetcher | gitlab | :repo | jkitchin/kitchingroup-47                                    | :files | (*)                                                                                                        |
+| kitchingroup-50 | :fetcher | github | :repo | KitchinHUB/kitchingroup-50                                  | :files | (*)                                                                                                        |
+| kitchingroup-55 | :fetcher | github | :repo | KitchinHUB/kitchingroup-55                                  | :files | (:defaults README.org manuscript.org manuscript.pdf supporting-information.org supporting-information.pdf) |
+| kitchingroup-56 | :fetcher | github | :repo | KitchinHUB/kitchingroup-56                                  | :files | (*)                                                                                                        |
+| kitchingroup-57 | :fetcher | github | :repo | KitchinHUB/kitchingroup-57                                  | :files | (*)                                                                                                        |
+| kitchingroup-58 | :fetcher | github | :repo | KitchinHUB/kitchingroup-58                                  | :files | (*)                                                                                                        |
+| kitchingroup-60 | :fetcher | github | :repo | KitchinHUB/kitchingroup-60                                  | :files | (*)                                                                                                        |
+| kitchingroup-62 | :fetcher | github | :repo | KitchinHUB/kitchingroup-62                                  | :files | (*)                                                                                                        |
+| kitchingroup-7  | :fetcher | github | :repo | KitchinHUB/kitchingroup-7                                   | :files | (*)                                                                                                        |
+| kitchingroup-9  | :fetcher | github | :repo | KitchinHUB/kitchingroup-9                                   | :files | (*)                                                                                                        |
+
+#+BEGIN_SRC emacs-lisp
+(require 'package-build)
+(let ((package-build-stable nil)
+      (package-build-write-melpa-badge-images t)
+      (package-build-archive-dir (expand-file-name "./packages" package-build--this-dir)))
+  (package-build-archive 'kitchingroup-42))
+#+END_SRC
+
+
+* Figshare builder
+
+https://figshare.com/articles/2070013/1/citations/dc
+
+https://figshare.com/articles/2070013/1/citations/nlm
+
+#+BEGIN_SRC emacs-lisp :results code
+(let* ((xml (car (with-current-buffer (url-retrieve-synchronously
+				       "https://figshare.com/articles/2070013/1/citations/nlm")
+		   (xml-parse-region url-http-end-of-headers (point-max)))))
+       (article (car (xml-get-children xml 'article)))
+       (front (car (xml-get-children article 'front)))
+       (article-meta (car (xml-get-children front 'article-meta)))
+       (uris (xml-get-children article-meta 'self-uri)))
+  (loop for uri in uris
+	with url = nil
+	do
+	(setq url (cdaadr uri))
+	collect (cons (file-name-nondirectory url)
+		      url)))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_SRC emacs-lisp
+(("m9.figshare.2070013.v1" . "10.6084/m9.figshare.2070013.v1")
+ ("2070013" . "https://figshare.com/articles/kitchingroup_59/2070013")
+ ("kitchingroup59.el" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698581/kitchingroup59.el")
+ ("manuscript.org" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698584/manuscript.org")
+ ("manuscript.pdf" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698587/manuscript.pdf")
+ ("README.org" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698593/README.org")
+ ("references.bib" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698590/references.bib")
+ ("shorttitles.bib" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698596/shorttitles.bib")
+ ("supportinginformation.org" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698599/supportinginformation.org")
+ ("supportinginformation.pdf" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698602/supportinginformation.pdf")
+ ("FIG1.eps" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698605/FIG1.eps")
+ ("FIG1.png" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698608/FIG1.png")
+ ("FIG2.eps" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698611/FIG2.eps")
+ ("FIG2.png" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698614/FIG2.png")
+ ("FIG3.eps" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698617/FIG3.eps")
+ ("FIG3.png" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698620/FIG3.png")
+ ("FIG4.eps" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698623/FIG4.eps")
+ ("FIG4.png" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698626/FIG4.png")
+ ("TOC.eps" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698629/TOC.eps")
+ ("TOC.png" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698632/TOC.png")
+ ("data.json" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698635/data.json")
+ ("dos_data.py" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698638/dos_data.py"))
+#+END_SRC
+
+
+
+((m9.figshare.2070013.v1 . 10.6084/m9.figshare.2070013.v1) (2070013 . https://figshare.com/articles/kitchingroup_59/2070013) (kitchingroup59.el . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698581/kitchingroup59.el) (manuscript.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698584/manuscript.org) (manuscript.pdf . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698587/manuscript.pdf) (README.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698593/README.org) (references.bib . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698590/references.bib) (shorttitles.bib . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698596/shorttitles.bib) (supportinginformation.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698599/supportinginformation.org) (supportinginformation.pdf . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698602/supportinginformation.pdf) (FIG1.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698605/FIG1.eps) (FIG1.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698608/FIG1.png) (FIG2.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698611/FIG2.eps) (FIG2.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698614/FIG2.png) (FIG3.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698617/FIG3.eps) (FIG3.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698620/FIG3.png) (FIG4.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698623/FIG4.eps) (FIG4.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698626/FIG4.png) (TOC.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698629/TOC.eps) (TOC.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698632/TOC.png) (data.json . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698635/data.json) (dos_data.py . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698638/dos_data.py))
