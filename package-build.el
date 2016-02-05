@@ -773,6 +773,50 @@ Return a cons cell whose `car' is the root and whose `cdr' is the repository."
 	(insert version))
       version)))
 
+(defun package-build--checkout-gdrive (name config dir)
+  "Download a zipfile from google drive."
+  ;; name is the package name.
+  ;; config is the recipe stuff
+  ;; dir is the working dir
+  (unless (file-exists-p dir)
+    (make-directory dir t))
+
+  (let ((url (format "https://drive.google.com/uc?export=download&id=%s"
+		     (plist-get config :id)))
+	(zipfile (format "%s.zip" name))
+	(md5-file (format "%s.zip.md5" name))
+	(version-file (format "%s.zip.version" name))
+	(default-directory dir)
+	md5 version)
+    (when (file-exists-p (concat zipfile ".md5"))
+      (setq md5 (with-current-buffer (find-file-noselect md5-file)
+		  (buffer-string))))
+
+    (when (file-exists-p version-file)
+      (setq version (with-current-buffer (find-file-noselect version-file)
+		      (buffer-string))))
+
+    ;; We need to get the zipfile and its md5
+    (package-build--url-copy-file
+     url
+     zipfile
+     t)
+
+    (if (string= md5 (shell-command-to-string (format "md5 %s" zipfile)))
+	;; no change, return version
+	version
+      ;; there must be a change, unzip, and update md5 and version
+      (shell-command (format "unzip %s" zipfile))
+
+      (setq md5 (shell-command-to-string (format "md5 %s" zipfile)))
+      (with-temp-file md5-file
+	(insert md5))
+      (setq version
+	    (format-time-string "%Y%m%d.%H%M"))
+      (with-temp-file version-file
+	(insert version))
+      version)))
+
 
 
 (defun package-build--dump (data file &optional pretty-print)
@@ -1023,7 +1067,7 @@ to build the recipe."
                (car pkg-info))
     (cl-assert rest)
     (let* ((symbol-keys '(:fetcher))
-           (string-keys '(:url :repo :module :commit :branch :version-regexp))
+           (string-keys '(:url :repo :module :commit :branch :version-regexp :id))
            (list-keys '(:files :old-names))
            (all-keys (append symbol-keys string-keys list-keys)))
       (dolist (thing rest)
