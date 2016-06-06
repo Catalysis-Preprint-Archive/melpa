@@ -1,6 +1,0 @@
-(kitchingroup-59
- :fetcher figshare
- :url "https://figshare.com/articles/2070013/1/citations/nlm"
- :files ("kitchingroup-59.el" "README.org" "manuscript.org" "manuscript.pdf"
-	 "references.bib"
-	 "supporting-information.org" "supporting-information.pdf"))

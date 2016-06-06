@@ -1,5 +1,8 @@
 #+TITLE: Readme for CaPPA
 
+CaPPA is a derivative of MELPA for scientific preprints. The idea is we use the recipes for preprint repositories instead, and serve them.
+
+To build CaPPA run these commands in this directory.
 
 #+BEGIN_SRC sh
 make
@@ -7,35 +10,44 @@ make sync
 make deploy
 #+END_SRC
 
+Roughly this does the following:
+1. Updates all the repositories listed in the [[./recipes]] directory.
+2. Generates web pages and data files for each repository.
+3. Synchronizes the generated files to the Cappa repository.
 
 
-* Package page
 
-Goal: create an html page describing a package (preprint)
+* About this build
+The CaPPA derivative of MELPA is on the cappa branch.
 
-We need to operate off this list so we can generate links to the package from the version.
+* Archived notes			  :archive:
+** Package page
 
-Here are the keys
-#+BEGIN_SRC emacs-lisp
+ Goal: create an html page describing a package (preprint)
+
+ We need to operate off this list so we can generate links to the package from the version.
+
+ Here are the keys
+ #+BEGIN_SRC emacs-lisp
 (-slice (package-build--archive-alist-for-json) 0 nil 2)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-| :kitchingroup-57 | :kitchingroup-46 | :kitchingroup-43 | :cappa |
+ #+RESULTS:
+ | :kitchingroup-57 | :kitchingroup-46 | :kitchingroup-43 | :cappa |
 
-And the values
-#+BEGIN_SRC emacs-lisp
+ And the values
+ #+BEGIN_SRC emacs-lisp
 (-slice (package-build--archive-alist-for-json) 1 nil 2)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-| :ver | (20160131 1005) | :deps | (:cappa (0)) | :desc | preprint http://dx.doi.org/10.1021/acscatal.5b00538. | :type | tar    | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
-| :ver | (20160131 1003) | :deps | nil          | :desc | preprint for doi:10.1021/ja5015986                   | :type | tar    | :props | ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986)) |
-| :ver | (20160131 1004) | :deps | (:cappa (0)) | :desc | preprint doi:10.1007/s11244-013-0166-3               | :type | tar    | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
-| :ver | (20160130 1736) | :deps | nil          | :desc | Catalysis Preprint Archive                           | :type | single | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
+ #+RESULTS:
+ | :ver | (20160131 1005) | :deps | (:cappa (0)) | :desc | preprint http://dx.doi.org/10.1021/acscatal.5b00538. | :type | tar    | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
+ | :ver | (20160131 1003) | :deps | nil          | :desc | preprint for doi:10.1021/ja5015986                   | :type | tar    | :props | ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986)) |
+ | :ver | (20160131 1004) | :deps | (:cappa (0)) | :desc | preprint doi:10.1007/s11244-013-0166-3               | :type | tar    | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
+ | :ver | (20160130 1736) | :deps | nil          | :desc | Catalysis Preprint Archive                           | :type | single | :props | ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))                                                    |
 
-Here are all the package names.
-#+BEGIN_SRC emacs-lisp
+ Here are all the package names.
+ #+BEGIN_SRC emacs-lisp
 (loop for (key ver type) in
 
       (loop for key in (-slice (package-build--archive-alist-for-json) 0 nil 2)
@@ -55,20 +67,20 @@ Here are all the package names.
 		      "tar")))
 
       collect link)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-| preprints/kitchingroup-57-20160131.1005.tar | preprints/kitchingroup-46-20160131.1003.tar | preprints/kitchingroup-43-20160131.1004.tar | preprints/cappa-20160130.1736.el |
+ #+RESULTS:
+ | preprints/kitchingroup-57-20160131.1005.tar | preprints/kitchingroup-46-20160131.1003.tar | preprints/kitchingroup-43-20160131.1004.tar | preprints/cappa-20160130.1736.el |
 
-I would like to list the contents of the packages we can do that.
+ I would like to list the contents of the packages we can do that.
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (with-current-buffer (find-file-noselect "packages/kitchingroup-43-20160131.1004.tar")
   (buffer-string))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-#+begin_example
+ #+RESULTS:
+ #+begin_example
  drwxr-xr-x jkitchin/staff         0 kitchingroup-43-20160131.1004/
  drwxr-xr-x jkitchin/staff         0 kitchingroup-43-20160131.1004/figures/
  -rw-r--r-- jkitchin/staff    186892 kitchingroup-43-20160131.1004/figures/fig1.eps
@@ -126,10 +138,10 @@ I would like to list the contents of the packages we can do that.
  -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd7.xls
  -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd8.xls
  -rw-r--r-- jkitchin/staff     28672 kitchingroup-43-20160131.1004/xls/tpd9.xls
-#+end_example
+ #+end_example
 
-Here is some minimal info.
-#+BEGIN_SRC emacs-lisp
+ Here is some minimal info.
+ #+BEGIN_SRC emacs-lisp
 (defun cappa-package-html (key data)
   "Create an html page for KEY and DATA.
 KEY is :label
@@ -198,22 +210,22 @@ ${contents}
        (key (nth 0 e))
        (data (nth 1 e)))
   (cappa-package-html key data))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
+ #+RESULTS:
 
-* Known bugs
-There is a bug in the melpa/package code that is presently preventing the html from properly building. It is because :maintainer is not serializing correctly.
+** Known bugs
+ There is a bug in the melpa/package code that is presently preventing the html from properly building. It is because :maintainer is not serializing correctly.
 
-see https://github.com/milkypostman/melpa/issues/3548
+ see https://github.com/milkypostman/melpa/issues/3548
 
 
-#+BEGIN_SRC emacs-lisp :results code
+ #+BEGIN_SRC emacs-lisp :results code
 (package-build--archive-alist-for-json)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-#+BEGIN_SRC emacs-lisp
+ #+RESULTS:
+ #+BEGIN_SRC emacs-lisp
 (:kitchingroup-57
  (:ver
   (20160130 1223)
@@ -241,14 +253,14 @@ see https://github.com/milkypostman/melpa/issues/3548
   ((:authors
     ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
    (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))))
-#+END_SRC
+ #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :results code
+ #+BEGIN_SRC emacs-lisp :results code
 (package-build-archive-alist)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-#+BEGIN_SRC emacs-lisp
+ #+RESULTS:
+ #+BEGIN_SRC emacs-lisp
 ((kitchingroup-57 .
 		  [(20160130 1457)
 		   ((cappa
@@ -271,17 +283,17 @@ see https://github.com/milkypostman/melpa/issues/3548
 	 ((:authors
 	   ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
 	  (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))]))
-#+END_SRC
+ #+END_SRC
 
-It looks like archive contents has the bad maintainer lines.
+ It looks like archive contents has the bad maintainer lines.
 
-This reads the entry files, and they are the source of the bad maintainer files.
-#+BEGIN_SRC emacs-lisp :results code
+ This reads the entry files, and they are the source of the bad maintainer files.
+ #+BEGIN_SRC emacs-lisp :results code
 (package-build--archive-entries)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-#+BEGIN_SRC emacs-lisp
+ #+RESULTS:
+ #+BEGIN_SRC emacs-lisp
 ((kitchingroup-57 .
 		  [(20160130 1457)
 		   ((cappa
@@ -311,155 +323,153 @@ This reads the entry files, and they are the source of the bad maintainer files.
 	 ((:authors
 	   ("John Kitchin" . "jkitchin@andrew.cmu.edu"))
 	  (:maintainer "John Kitchin" . "jkitchin@andrew.cmu.edu"))]))
-#+END_SRC
+ #+END_SRC
 
-** Checking a build
-#+BEGIN_SRC emacs-lisp
+*** Checking a build
+ #+BEGIN_SRC emacs-lisp
 (load-file "package-build.el")
 (let ((package-build-stable nil)
       (package-build-write-melpa-badge-images t)
       (package-build-archive-dir
        (expand-file-name "packages" package-build--this-dir)))
   (package-build-archive 'kitchingroup-43))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-| kitchingroup-43 | 20160130.1457 |
-
-
+ #+RESULTS:
+ | kitchingroup-43 | 20160130.1457 |
 
 
 
-* Checking for bug
-#+BEGIN_SRC emacs-lisp :results raw
+
+** Checking for bug
+ #+BEGIN_SRC emacs-lisp :results raw
 (progn (find-file "working/kitchingroup-43/kitchingroup-43.el")
 (package-build--package-buffer-info-vec))
-#+END_SRC
+ #+END_SRC
 
 
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (load-file "package-build.el")
 (package-build--archive-alist-for-json)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-| :kitchingroup-9 | (:ver (20160131 1904) :deps nil :desc preprint :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-7 | (:ver (20160131 1850) :deps nil :desc CaPPA preprint for doi:10.1063/1.1737365 :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-62 | (:ver (20160131 2149) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-60 | (:ver (20160201 652) :deps nil :desc CaPPA preprint for doi:10.1016/j.susc.2015.10.001 :type tar :props ((:authors (Hari Thirumalai)) (:maintainer (Hari Thirumalai)))) | :kitchingroup-57 | (:ver (20160131 1841) :deps (:cappa (0)) :desc preprint http://dx.doi.org/10.1021/acscatal.5b00538. :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-56 | (:ver (20160201 842) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-46 | (:ver (20160131 1840) :deps nil :desc preprint for doi:10.1021/ja5015986 :type tar :props ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986))) | :kitchingroup-43 | (:ver (20160131 1838) :deps (:cappa (0)) :desc preprint doi:10.1007/s11244-013-0166-3 :type tar :props ((:authors (Spencer D. Miller)) (:maintainer (Spencer D. Miller)) (:url . http://link.springer.com/article/10.1007%2Fs11244-013-0166-3))) | :cappa | (:ver (20160201 1345) :deps nil :desc Catalysis Preprint Archive :type single :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) |
+ #+RESULTS:
+ | :kitchingroup-9 | (:ver (20160131 1904) :deps nil :desc preprint :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-7 | (:ver (20160131 1850) :deps nil :desc CaPPA preprint for doi:10.1063/1.1737365 :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-62 | (:ver (20160131 2149) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-60 | (:ver (20160201 652) :deps nil :desc CaPPA preprint for doi:10.1016/j.susc.2015.10.001 :type tar :props ((:authors (Hari Thirumalai)) (:maintainer (Hari Thirumalai)))) | :kitchingroup-57 | (:ver (20160131 1841) :deps (:cappa (0)) :desc preprint http://dx.doi.org/10.1021/acscatal.5b00538. :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-56 | (:ver (20160201 842) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-46 | (:ver (20160131 1840) :deps nil :desc preprint for doi:10.1021/ja5015986 :type tar :props ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986))) | :kitchingroup-43 | (:ver (20160131 1838) :deps (:cappa (0)) :desc preprint doi:10.1007/s11244-013-0166-3 :type tar :props ((:authors (Spencer D. Miller)) (:maintainer (Spencer D. Miller)) (:url . http://link.springer.com/article/10.1007%2Fs11244-013-0166-3))) | :cappa | (:ver (20160201 1345) :deps nil :desc Catalysis Preprint Archive :type single :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) |
 
 
-emacs --no-site-file --batch -l package-build.el --eval '(let ((package-build-stable nil) (package-build-archive-dir (expand-file-name "./packages/" package-build--this-dir))) (package-build-archive-alist-as-json "html/archive.json"))'
-Wrong type argument: listp, "jkitchin@andrew.cmu.edu"
+ emacs --no-site-file --batch -l package-build.el --eval '(let ((package-build-stable nil) (package-build-archive-dir (expand-file-name "./packages/" package-build--this-dir))) (package-build-archive-alist-as-json "html/archive.json"))'
+ Wrong type argument: listp, "jkitchin@andrew.cmu.edu"
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (let ((package-build-stable nil)
       (package-build-archive-dir (expand-file-name "./packages/" package-build--this-dir)))
   (package-build-archive-alist-as-json "html/archive.json"))
-#+END_SRC
+ #+END_SRC
 
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (json-encode (package-build--archive-alist-for-json))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-: {"kitchingroup-9":{"ver":[20160131,1904],"deps":null,"desc":"preprint","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-7":{"ver":[20160131,1850],"deps":null,"desc":"CaPPA preprint for doi:10.1063/1.1737365","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-62":{"ver":[20160131,2149],"deps":null,"desc":"CaPPA preprint for doi:","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-60":{"ver":[20160201,652],"deps":null,"desc":"CaPPA preprint for doi:10.1016/j.susc.2015.10.001","type":"tar","props":{"authors":{"Hari Thirumalai":null},"maintainer":{"Hari Thirumalai":null}}},"kitchingroup-57":{"ver":[20160131,1841],"deps":{"cappa":[0]},"desc":"preprint http://dx.doi.org/10.1021/acscatal.5b00538.","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-56":{"ver":[20160201,842],"deps":null,"desc":"CaPPA preprint for doi:","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-46":{"ver":[20160131,1840],"deps":null,"desc":"preprint for doi:10.1021/ja5015986","type":"tar","props":{"authors":{"John R. Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John R. Kitchin":"jkitchin@andrew.cmu.edu"},"url":"http://dx.doi.org/10.1021/ja5015986"}},"kitchingroup-43":{"ver":[20160131,1838],"deps":{"cappa":[0]},"desc":"preprint doi:10.1007/s11244-013-0166-3","type":"tar","props":{"authors":{"Spencer D. Miller":null},"maintainer":{"Spencer D. Miller":null},"url":"http://link.springer.com/article/10.1007%2Fs11244-013-0166-3"}},"cappa":{"ver":[20160201,1345],"deps":null,"desc":"Catalysis Preprint Archive","type":"single","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}}}
+ #+RESULTS:
+ : {"kitchingroup-9":{"ver":[20160131,1904],"deps":null,"desc":"preprint","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-7":{"ver":[20160131,1850],"deps":null,"desc":"CaPPA preprint for doi:10.1063/1.1737365","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-62":{"ver":[20160131,2149],"deps":null,"desc":"CaPPA preprint for doi:","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-60":{"ver":[20160201,652],"deps":null,"desc":"CaPPA preprint for doi:10.1016/j.susc.2015.10.001","type":"tar","props":{"authors":{"Hari Thirumalai":null},"maintainer":{"Hari Thirumalai":null}}},"kitchingroup-57":{"ver":[20160131,1841],"deps":{"cappa":[0]},"desc":"preprint http://dx.doi.org/10.1021/acscatal.5b00538.","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-56":{"ver":[20160201,842],"deps":null,"desc":"CaPPA preprint for doi:","type":"tar","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}},"kitchingroup-46":{"ver":[20160131,1840],"deps":null,"desc":"preprint for doi:10.1021/ja5015986","type":"tar","props":{"authors":{"John R. Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John R. Kitchin":"jkitchin@andrew.cmu.edu"},"url":"http://dx.doi.org/10.1021/ja5015986"}},"kitchingroup-43":{"ver":[20160131,1838],"deps":{"cappa":[0]},"desc":"preprint doi:10.1007/s11244-013-0166-3","type":"tar","props":{"authors":{"Spencer D. Miller":null},"maintainer":{"Spencer D. Miller":null},"url":"http://link.springer.com/article/10.1007%2Fs11244-013-0166-3"}},"cappa":{"ver":[20160201,1345],"deps":null,"desc":"Catalysis Preprint Archive","type":"single","props":{"authors":{"John Kitchin":"jkitchin@andrew.cmu.edu"},"maintainer":{"John Kitchin":"jkitchin@andrew.cmu.edu"}}}}
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (package-build--archive-alist-for-json)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-| :kitchingroup-9 | (:ver (20160131 1904) :deps nil :desc preprint :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-7 | (:ver (20160131 1850) :deps nil :desc CaPPA preprint for doi:10.1063/1.1737365 :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-62 | (:ver (20160131 2149) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-60 | (:ver (20160201 652) :deps nil :desc CaPPA preprint for doi:10.1016/j.susc.2015.10.001 :type tar :props ((:authors (Hari Thirumalai)) (:maintainer (Hari Thirumalai)))) | :kitchingroup-57 | (:ver (20160131 1841) :deps (:cappa (0)) :desc preprint http://dx.doi.org/10.1021/acscatal.5b00538. :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-56 | (:ver (20160201 842) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-46 | (:ver (20160131 1840) :deps nil :desc preprint for doi:10.1021/ja5015986 :type tar :props ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986))) | :kitchingroup-43 | (:ver (20160131 1838) :deps (:cappa (0)) :desc preprint doi:10.1007/s11244-013-0166-3 :type tar :props ((:authors (Spencer D. Miller)) (:maintainer (Spencer D. Miller)) (:url . http://link.springer.com/article/10.1007%2Fs11244-013-0166-3))) | :cappa | (:ver (20160201 1345) :deps nil :desc Catalysis Preprint Archive :type single :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) |
+ #+RESULTS:
+ | :kitchingroup-9 | (:ver (20160131 1904) :deps nil :desc preprint :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-7 | (:ver (20160131 1850) :deps nil :desc CaPPA preprint for doi:10.1063/1.1737365 :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-62 | (:ver (20160131 2149) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-60 | (:ver (20160201 652) :deps nil :desc CaPPA preprint for doi:10.1016/j.susc.2015.10.001 :type tar :props ((:authors (Hari Thirumalai)) (:maintainer (Hari Thirumalai)))) | :kitchingroup-57 | (:ver (20160131 1841) :deps (:cappa (0)) :desc preprint http://dx.doi.org/10.1021/acscatal.5b00538. :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-56 | (:ver (20160201 842) :deps nil :desc CaPPA preprint for doi: :type tar :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) | :kitchingroup-46 | (:ver (20160131 1840) :deps nil :desc preprint for doi:10.1021/ja5015986 :type tar :props ((:authors (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John R. Kitchin . jkitchin@andrew.cmu.edu)) (:url . http://dx.doi.org/10.1021/ja5015986))) | :kitchingroup-43 | (:ver (20160131 1838) :deps (:cappa (0)) :desc preprint doi:10.1007/s11244-013-0166-3 :type tar :props ((:authors (Spencer D. Miller)) (:maintainer (Spencer D. Miller)) (:url . http://link.springer.com/article/10.1007%2Fs11244-013-0166-3))) | :cappa | (:ver (20160201 1345) :deps nil :desc Catalysis Preprint Archive :type single :props ((:authors (John Kitchin . jkitchin@andrew.cmu.edu)) (:maintainer (John Kitchin . jkitchin@andrew.cmu.edu)))) |
 
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (condition-case nil
     (json-encode '(:maintainer "John" . "my@email.com"))
   (error "error"))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-: error
+ #+RESULTS:
+ : error
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (condition-case nil
     (json-encode '(:maintainer ("John" . "my@email.com")))
   (error "error"))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-: error
+ #+RESULTS:
+ : error
 
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (condition-case nil
     (json-encode '(:maintainer (("John" . "my@email.com"))))
   (error "error"))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-: {"maintainer":{"John":"my@email.com"}}
+ #+RESULTS:
+ : {"maintainer":{"John":"my@email.com"}}
 
 
-This code does not work.
+ This code does not work.
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (json-encode-list '(:maintainer ("John" . "my@email.com")))
-#+END_SRC
+ #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (listp '(:maintainer ("John" . "my@email.com")))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-: t
+ #+RESULTS:
+ : t
 
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (json-encode-array '(:maintainer ("John" . "my@email.com")))
-#+END_SRC
+ #+END_SRC
 
-* A zenodo builder
+** A zenodo builder
 
-emacs --no-site-file --batch -l package-build.el --eval "(let ((package-build-stable nil) (package-build-write-melpa-badge-images t) (package-build-archive-dir (expand-file-name \"./packages\" package-build--this-dir))) (package-build-archive 'kitchingroup-42))"
+ emacs --no-site-file --batch -l package-build.el --eval "(let ((package-build-stable nil) (package-build-write-melpa-badge-images t) (package-build-archive-dir (expand-file-name \"./packages\" package-build--this-dir))) (package-build-archive 'kitchingroup-42))"
 
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (package-build-recipe-alist)
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-| cappa           | :fetcher | github | :repo | Catalysis-Preprint-Archive/cappa                            | :files | (:defaults)                                                                                                |
-| kitchingroup-43 | :fetcher | github | :repo | KitchinHUB/kitchingroup-43                                  | :files | (*)                                                                                                        |
-| kitchingroup-44 | :fetcher | git    | :url  | https://jkitchin@bitbucket.org/jkitchin/kitchingroup-44.git | :files | (*)                                                                                                        |
-| kitchingroup-46 | :fetcher | github | :repo | KitchinHUB/kitchingroup-46                                  | :files | (*)                                                                                                        |
-| kitchingroup-47 | :fetcher | gitlab | :repo | jkitchin/kitchingroup-47                                    | :files | (*)                                                                                                        |
-| kitchingroup-50 | :fetcher | github | :repo | KitchinHUB/kitchingroup-50                                  | :files | (*)                                                                                                        |
-| kitchingroup-55 | :fetcher | github | :repo | KitchinHUB/kitchingroup-55                                  | :files | (:defaults README.org manuscript.org manuscript.pdf supporting-information.org supporting-information.pdf) |
-| kitchingroup-56 | :fetcher | github | :repo | KitchinHUB/kitchingroup-56                                  | :files | (*)                                                                                                        |
-| kitchingroup-57 | :fetcher | github | :repo | KitchinHUB/kitchingroup-57                                  | :files | (*)                                                                                                        |
-| kitchingroup-58 | :fetcher | github | :repo | KitchinHUB/kitchingroup-58                                  | :files | (*)                                                                                                        |
-| kitchingroup-60 | :fetcher | github | :repo | KitchinHUB/kitchingroup-60                                  | :files | (*)                                                                                                        |
-| kitchingroup-62 | :fetcher | github | :repo | KitchinHUB/kitchingroup-62                                  | :files | (*)                                                                                                        |
-| kitchingroup-7  | :fetcher | github | :repo | KitchinHUB/kitchingroup-7                                   | :files | (*)                                                                                                        |
-| kitchingroup-9  | :fetcher | github | :repo | KitchinHUB/kitchingroup-9                                   | :files | (*)                                                                                                        |
+ #+RESULTS:
+ | cappa           | :fetcher | github | :repo | Catalysis-Preprint-Archive/cappa                            | :files | (:defaults)                                                                                                |
+ | kitchingroup-43 | :fetcher | github | :repo | KitchinHUB/kitchingroup-43                                  | :files | (*)                                                                                                        |
+ | kitchingroup-44 | :fetcher | git    | :url  | https://jkitchin@bitbucket.org/jkitchin/kitchingroup-44.git | :files | (*)                                                                                                        |
+ | kitchingroup-46 | :fetcher | github | :repo | KitchinHUB/kitchingroup-46                                  | :files | (*)                                                                                                        |
+ | kitchingroup-47 | :fetcher | gitlab | :repo | jkitchin/kitchingroup-47                                    | :files | (*)                                                                                                        |
+ | kitchingroup-50 | :fetcher | github | :repo | KitchinHUB/kitchingroup-50                                  | :files | (*)                                                                                                        |
+ | kitchingroup-55 | :fetcher | github | :repo | KitchinHUB/kitchingroup-55                                  | :files | (:defaults README.org manuscript.org manuscript.pdf supporting-information.org supporting-information.pdf) |
+ | kitchingroup-56 | :fetcher | github | :repo | KitchinHUB/kitchingroup-56                                  | :files | (*)                                                                                                        |
+ | kitchingroup-57 | :fetcher | github | :repo | KitchinHUB/kitchingroup-57                                  | :files | (*)                                                                                                        |
+ | kitchingroup-58 | :fetcher | github | :repo | KitchinHUB/kitchingroup-58                                  | :files | (*)                                                                                                        |
+ | kitchingroup-60 | :fetcher | github | :repo | KitchinHUB/kitchingroup-60                                  | :files | (*)                                                                                                        |
+ | kitchingroup-62 | :fetcher | github | :repo | KitchinHUB/kitchingroup-62                                  | :files | (*)                                                                                                        |
+ | kitchingroup-7  | :fetcher | github | :repo | KitchinHUB/kitchingroup-7                                   | :files | (*)                                                                                                        |
+ | kitchingroup-9  | :fetcher | github | :repo | KitchinHUB/kitchingroup-9                                   | :files | (*)                                                                                                        |
 
-#+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp
 (require 'package-build)
 (let ((package-build-stable nil)
       (package-build-write-melpa-badge-images t)
       (package-build-archive-dir (expand-file-name "./packages" package-build--this-dir)))
   (package-build-archive 'kitchingroup-42))
-#+END_SRC
+ #+END_SRC
 
+** Figshare builder
 
-* Figshare builder
+ https://figshare.com/articles/2070013/1/citations/dc
 
-https://figshare.com/articles/2070013/1/citations/dc
+ https://figshare.com/articles/2070013/1/citations/nlm
 
-https://figshare.com/articles/2070013/1/citations/nlm
-
-#+BEGIN_SRC emacs-lisp :results code
+ #+BEGIN_SRC emacs-lisp :results code
 (let* ((xml (car (with-current-buffer (url-retrieve-synchronously
 				       "https://figshare.com/articles/2070013/1/citations/nlm")
 		   (xml-parse-region url-http-end-of-headers (point-max)))))
@@ -473,10 +483,10 @@ https://figshare.com/articles/2070013/1/citations/nlm
 	(setq url (cdaadr uri))
 	collect (cons (file-name-nondirectory url)
 		      url)))
-#+END_SRC
+ #+END_SRC
 
-#+RESULTS:
-#+BEGIN_SRC emacs-lisp
+ #+RESULTS:
+ #+BEGIN_SRC emacs-lisp
 (("m9.figshare.2070013.v1" . "10.6084/m9.figshare.2070013.v1")
  ("2070013" . "https://figshare.com/articles/kitchingroup_59/2070013")
  ("kitchingroup59.el" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698581/kitchingroup59.el")
@@ -499,8 +509,14 @@ https://figshare.com/articles/2070013/1/citations/nlm
  ("TOC.png" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698632/TOC.png")
  ("data.json" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698635/data.json")
  ("dos_data.py" . "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698638/dos_data.py"))
-#+END_SRC
+ #+END_SRC
 
 
 
-((m9.figshare.2070013.v1 . 10.6084/m9.figshare.2070013.v1) (2070013 . https://figshare.com/articles/kitchingroup_59/2070013) (kitchingroup59.el . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698581/kitchingroup59.el) (manuscript.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698584/manuscript.org) (manuscript.pdf . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698587/manuscript.pdf) (README.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698593/README.org) (references.bib . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698590/references.bib) (shorttitles.bib . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698596/shorttitles.bib) (supportinginformation.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698599/supportinginformation.org) (supportinginformation.pdf . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698602/supportinginformation.pdf) (FIG1.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698605/FIG1.eps) (FIG1.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698608/FIG1.png) (FIG2.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698611/FIG2.eps) (FIG2.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698614/FIG2.png) (FIG3.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698617/FIG3.eps) (FIG3.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698620/FIG3.png) (FIG4.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698623/FIG4.eps) (FIG4.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698626/FIG4.png) (TOC.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698629/TOC.eps) (TOC.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698632/TOC.png) (data.json . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698635/data.json) (dos_data.py . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698638/dos_data.py))
+ ((m9.figshare.2070013.v1 . 10.6084/m9.figshare.2070013.v1) (2070013 . https://figshare.com/articles/kitchingroup_59/2070013) (kitchingroup59.el . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698581/kitchingroup59.el) (manuscript.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698584/manuscript.org) (manuscript.pdf . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698587/manuscript.pdf) (README.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698593/README.org) (references.bib . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698590/references.bib) (shorttitles.bib . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698596/shorttitles.bib) (supportinginformation.org . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698599/supportinginformation.org) (supportinginformation.pdf . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698602/supportinginformation.pdf) (FIG1.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698605/FIG1.eps) (FIG1.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698608/FIG1.png) (FIG2.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698611/FIG2.eps) (FIG2.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698614/FIG2.png) (FIG3.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698617/FIG3.eps) (FIG3.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698620/FIG3.png) (FIG4.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698623/FIG4.eps) (FIG4.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698626/FIG4.png) (TOC.eps . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698629/TOC.eps) (TOC.png . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698632/TOC.png) (data.json . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698635/data.json) (dos_data.py . https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/3698638/dos_data.py))
+** Gdrive
+
+ https://drive.google.com/file/d/0B67FYRNpJuqVYk1uNGJPOXhMSjQ/
+
+
+ https://drive.google.com/uc?export=download&id=0B67FYRNpJuqVYk1uNGJPOXhMSjQ

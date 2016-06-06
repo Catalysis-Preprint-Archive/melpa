@@ -6,11 +6,16 @@
 (require 'cl)
 ;;; Code:
 
-(add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/s-20140910.334")
-(add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/dash-20150717.1321")
-(add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/elpa/hydra-20150723.154")
-(add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/org-ref")
+;; This gets loaded in batch, so we have to add a lot of stuff to the path.
 
+
+(require 'package)
+(setq package-user-dir (expand-file-name "elpa"  "~/Dropbox/kitchingroup/jmax"))
+(package-initialize)
+
+(add-to-list 'load-path "~/Dropbox/kitchingroup/jmax/org-ref")
+(require 'helm-config)
+(require 'org-ref)
 (load-file "/Users/jkitchin/Catalysis-Preprint-Archive/melpa/private-scopus-key.el")
 (require 'org-ref-scopus)
 
@@ -18,14 +23,14 @@
 (require 's)
 (require 'dash)
 (require 'package-build)
-
-
+(require 'bibtex)
 
 (defun cappa-package-html (key data)
   "Create an html page for the package represented by KEY and DATA.
 KEY is :label
 DATA is (plist-get (package-build--archive-alist-for-json) key)."
   ;; first, gather information.
+  (message "Making %s" key)
   (let* ((package (substring (symbol-name key) 1))
 	 (pkg-el-file (expand-file-name
 		       (format "%s/%s.el" package package)
@@ -41,7 +46,8 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 			       "el"
 			     "tar")))
 	 (html (format "%s/%s.html" "html/packages" pkg-base))
-	 author doi desc commentary bibtex
+	 (recipe (format "%s/%s-recipe.html" "html/packages" pkg-base))
+	 author doi desc commentary bibtex citation
 	 scopus-citing
 	 scopus-related-by-keyword
 	 scopus-related-by-author
@@ -55,31 +61,58 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 	    desc (package-desc-summary (package-buffer-info))
 	    commentary (or (lm-commentary) "")))
 
+    (when (and bibtex (not (string= bibtex "No bibtex entry found.")))
+      (message "Generating bibtex and RIS for %s: %s" package bibtex)
+      (setq bibtex
+	    (with-temp-buffer
+	      (insert bibtex)
+	      (goto-char (point-min))
+	      (setq citation (org-ref-bib-citation))
+	      (org-ref-sort-bibtex-entry)
+	      (buffer-string)))
+      (message "Done: %s" bibtex)
+      ;; save a bibtex file
+      (with-temp-file (format "packages/%s.bib" pkg-base)
+        (insert bibtex))
+
+      ;; make RIS file
+      (shell-command (format "bib2xml packages/%s.bib > packages/%s.xml" pkg-base pkg-base))
+      (shell-command (format "xml2ris packages/%s.xml > packages/%s.ris" pkg-base pkg-base))
+      )
+
     (when doi
       (setq ;; scopus-citing (format
-	    ;;		   "<a href=\"%s\">citing articles</a>"
-	    ;;		   (scopus-citing-url doi))
-	    ;; scopus-related-by-keyword (format
-				       ;; "<a href=\"%s\">Keyword</a>"
-				       ;; (scopus-related-by-keyword-url doi)
-				       ;;)
-	    ;; scopus-related-by-author (format
-				      ;; "<a href=\"%s\">Author</a>"
-				      ;; (scopus-related-by-author-url doi)
-				      ;;)
-	    ;; scopus-related-by-references (format
-				       ;; "<a href=\"%s\">References</a>"
-				       ;; (scopus-related-by-references-url doi)
-				       ;;)
-	    wos-related (format "<a href=\"%s\">related</a>"
-				(concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
-					doi
-					"&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes"))
-	    wos-citing (format "<a href=\"%s\">citing</a>"
-			       (concat
-				"http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
-				doi
-				"&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes"))))
+       ;;		   "<a href=\"%s\">citing articles</a>"
+       ;;		   (scopus-citing-url doi))
+       ;; scopus-related-by-keyword (format
+       ;; "<a href=\"%s\">Keyword</a>"
+       ;; (scopus-related-by-keyword-url doi)
+       ;;)
+       ;; scopus-related-by-author (format
+       ;; "<a href=\"%s\">Author</a>"
+       ;; (scopus-related-by-author-url doi)
+       ;;)
+       ;; scopus-related-by-references (format
+       ;; "<a href=\"%s\">References</a>"
+       ;; (scopus-related-by-references-url doi)
+       ;;)
+       wos-related (format "<a href=\"%s\">related</a>"
+			   (concat "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
+				   doi
+				   "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.related=yes"))
+       wos-citing (format "<a href=\"%s\">citing</a>"
+			  (concat
+			   "http://ws.isiknowledge.com/cps/openurl/service?url_ver=Z39.88-2004&rft_id=info%3Adoi%2F"
+			   doi
+			   "&svc_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Asch_svc&svc.citing=yes"))))
+
+    (with-temp-file recipe
+      (insert
+       (format "<html><body><pre>%s<pre></body></html>"
+	       (with-temp-buffer
+		 (insert-file-contents
+		  (format "recipes/%s" package))
+		 (buffer-string)))))
 
     (with-temp-file html
       (insert
@@ -88,21 +121,58 @@ DATA is (plist-get (package-build--archive-alist-for-json) key)."
 <script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
 <body>
 
-<h1>${package}</h1>
+<h1>${package} (<a href=\"./${pkg-base}-recipe.html\">recipe</a>)</h1>
 <a href=\"http://catalysis-preprint-archive.github.io\">Home</a><br>
+<h2><a href=\"http://dx.doi.org/${doi}\">${citation}</a></h2>
+<table>
+<tr>
+<td>
 <img src=\"${package}-badge.svg\">
-<a href=\"http://dx.doi.org/${doi}\">DOI</a> ${repo}
+ ${repo}
 ${altmetric}
 ${scopus-cite-badge}<br>
 <!-- Scopus (these links require Institutional access)<br> -->
 <!-- It seems like these scopus links don't actually work. -->
 <!-- Related articles by: K${scopus-related-by-keyword}  A${scopus-related-by-author}  R${scopus-related-by-references} -->
-<br>
-WOS: ${wos-citing} ${wos-related}
-<br>
-
-
+</td>
+<td>
 <pre>${bibtex}</pre>
+<a href=\"${pkg-base}.bib\">bibtex</a> <a href=\"${pkg-base}.ris\">RIS</a>
+</td></tr></table>
+
+<br>
+<a href=\"https://webofknowledge.com\">
+<img alt=\"Web of Science\" title=\"Web of Science\" src=\"/wos_logo.png\"></a>: ${wos-citing} ${wos-related}
+<br>
+<a href=\"https://twitter.com/share\" class=\"twitter-share-button\">Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+<script type=\"text/javascript\" src=\"//www.reddit.com/buttonlite.js?i=1\"></script>
+
+<div id=\"disqus_thread\"></div>
+<script>
+ /**
+ * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+ /*
+ var disqus_config = function () {
+ this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+ this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+ };
+ */
+ (function() { // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//cappa.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+<noscript>Please enable JavaScript to view the <a href=\"https://disqus.com/?ref_noscript\" rel=\"nofollow\">comments powered by Disqus.</a></noscript>
+
+
+
+<script id=\"dsq-count-scr\" src=\"//cappa.disqus.com/count.js\" async></script>
 
 <a href=\"${pkg-file}\">${pkg-file}</a> (${archive-size})
 
@@ -128,6 +198,8 @@ ${contents}
 
 	'aget
 	`(("package" . ,package)
+	  ("pkg-base" . ,pkg-base)
+	  ("citation" . ,(or citation ""))
 	  ("desc" . ,desc)
 	  ("author" . ,author)
 	  ("pkg-file" . ,pkg-file)

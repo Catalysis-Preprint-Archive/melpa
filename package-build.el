@@ -731,6 +731,28 @@ Return a cons cell whose `car' is the root and whose `cdr' is the repository."
 		t)))
     (format-time-string "%Y%m%d.%H%M")))
 
+(defun package-build--checkout-url (name config dir)
+  "Download the files from a url fetcher."
+  (unless (file-exists-p dir)
+    (make-directory dir t))
+
+  (let* ((url (plist-get config :url))
+	 (purl (url-generic-parse-url url))
+	 (host (url-host purl))
+	 (filename (url-filename purl))
+	 (default-directory dir))
+    ;; get the url contents
+    (message "URL = %s" url)
+    (shell-command (format "wget -np -r %s" url))
+    (shell-command (format "mv %s/%s/* ."
+			   host filename))
+    ;; (delete-directory host t)
+    )
+
+  (format-time-string "%Y%m%d.%H%M"))
+
+
+
 (defun package-build--checkout-dropbox (name config dir)
   ;; name is the package name.
   ;; config is the recipe stuff
